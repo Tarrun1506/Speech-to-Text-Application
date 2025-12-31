@@ -38,6 +38,48 @@ def get_transcriptions():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/transcriptions/<id>', methods=['GET'])
+def get_transcription(id):
+    try:
+        transcription = transcriptions_collection.find_one({"_id": ObjectId(id)})
+        if transcription:
+            transcription['_id'] = str(transcription['_id'])
+            return jsonify(transcription), 200
+        else:
+            return jsonify({"error": "Transcription not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/transcriptions/<id>', methods=['DELETE'])
+def delete_transcription(id):
+    try:
+        result = transcriptions_collection.delete_one({"_id": ObjectId(id)})
+        if result.deleted_count > 0:
+            return jsonify({"message": "Transcription deleted"}), 200
+        else:
+            return jsonify({"error": "Transcription not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/transcriptions/<id>', methods=['PUT'])
+def update_transcription(id):
+    try:
+        data = request.json
+        if not data or 'text' not in data:
+             return jsonify({"error": "No text provided"}), 400
+             
+        result = transcriptions_collection.update_one(
+            {"_id": ObjectId(id)},
+            {"$set": {"text": data['text']}}
+        )
+        
+        if result.matched_count > 0:
+            return jsonify({"message": "Transcription updated"}), 200
+        else:
+            return jsonify({"error": "Transcription not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -60,6 +102,7 @@ def upload_file():
             transcription_entry = {
                 "filename": filename,
                 "text": result['text'],
+                "language": result['language'], # Save detected language
                 "segments": result['segments'], # Detailed segments with timestamps
                 "createdAt": datetime.datetime.utcnow(),
                 "status": "completed"

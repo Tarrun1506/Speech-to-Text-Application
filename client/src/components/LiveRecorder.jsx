@@ -1,9 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import WaveSurfer from 'wavesurfer.js';
 import axios from 'axios';
-import { Mic, Square, Loader2, Save } from 'lucide-react';
+import { Mic, Square, Loader2, RefreshCw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const LiveRecorder = ({ onRecordingComplete }) => {
+const LiveRecorder = () => {
+    const navigate = useNavigate();
     const waveformRef = useRef(null);
     const wavesurferRef = useRef(null);
     const mediaRecorderRef = useRef(null);
@@ -128,13 +129,16 @@ const LiveRecorder = ({ onRecordingComplete }) => {
         formData.append('file', file);
 
         try {
-            await axios.post('http://localhost:5000/api/upload', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+            const response = await axios.post('http://localhost:5000/api/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
+
             setIsProcessing(false);
-            onRecordingComplete();
-        } catch (err) {
-            console.error(err);
+            navigate(`/editor/${response.data.id}`);
+        } catch (error) {
+            console.error(error);
             setIsProcessing(false);
             alert("Failed to upload recording.");
         }

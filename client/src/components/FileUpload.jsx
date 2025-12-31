@@ -1,13 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
-import { Upload, X, Loader2, FileAudio } from 'lucide-react';
+import { Upload, FileAudio, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const FileUpload = ({ onUploadSuccess }) => {
+const FileUpload = () => {
+    const navigate = useNavigate();
     const [file, setFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [error, setError] = useState(null);
-    const fileInputRef = useRef(null);
+    const [uploadStatus, setUploadStatus] = useState('idle'); // idle, uploading, completed, error
 
     const handleDragOver = (e) => {
         e.preventDefault();
@@ -34,12 +37,13 @@ const FileUpload = ({ onUploadSuccess }) => {
         setIsUploading(true);
         setError(null);
         setUploadProgress(0);
+        setUploadStatus('uploading');
 
         const formData = new FormData();
         formData.append('file', file);
 
         try {
-            await axios.post('http://localhost:5000/api/upload', formData, {
+            const response = await axios.post('http://localhost:5000/api/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -48,17 +52,21 @@ const FileUpload = ({ onUploadSuccess }) => {
                     setUploadProgress(percentCompleted);
                 },
             });
-            setIsUploading(false);
-            onUploadSuccess();
+            setUploadStatus('completed');
+            // Allow user to see completed state briefly before navigating
+            setTimeout(() => {
+                navigate(`/editor/${response.data.id}`);
+            }, 1000);
         } catch (err) {
             console.error(err);
             setError('Failed to upload and transcribe. Please try again.');
             setIsUploading(false);
+            setUploadStatus('error');
         }
     };
 
     return (
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto animate-in fade-in duration-500">
             <h2 className="text-3xl font-bold mb-8 text-gray-800">Upload & Transcribe</h2>
 
             <div
@@ -68,7 +76,7 @@ const FileUpload = ({ onUploadSuccess }) => {
                 onDrop={handleDrop}
             >
                 {!file ? (
-                    <div className="flex flex-col items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                    <div className="flex flex-col items-center cursor-pointer" onClick={() => document.getElementById('fileInput').click()}>
                         <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
                             <Upload size={32} />
                         </div>
@@ -95,7 +103,7 @@ const FileUpload = ({ onUploadSuccess }) => {
                 )}
                 <input
                     type="file"
-                    ref={fileInputRef}
+                    id="fileInput"
                     onChange={handleFileChange}
                     className="hidden"
                     accept="audio/*"
@@ -103,7 +111,8 @@ const FileUpload = ({ onUploadSuccess }) => {
             </div>
 
             {error && (
-                <div className="mt-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+                <div className="mt-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 flex items-center">
+                    <AlertCircle className="mr-2" size={20} />
                     {error}
                 </div>
             )}
@@ -124,7 +133,14 @@ const FileUpload = ({ onUploadSuccess }) => {
                 </div>
             )}
 
-            {file && !isUploading && (
+            {uploadStatus === 'completed' && (
+                <div className="mt-6 p-4 bg-green-50 text-green-700 rounded-lg border border-green-200 flex items-center justify-center">
+                    <CheckCircle className="mr-2" size={20} />
+                    <span>Transcription Complete! Redirecting...</span>
+                </div>
+            )}
+
+            {file && !isUploading && uploadStatus !== 'completed' && (
                 <button
                     onClick={uploadFile}
                     className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center"

@@ -1,98 +1,76 @@
 # WhisperNote - AI Speech to Text Application
 
-A full-stack application that provides highly accurate speech transcription using OpenAI's Whisper model. Built with React, Flask, and MongoDB.
+WhisperNote is a powerful full-stack application that transforms your audio into text with high accuracy using OpenAI's Whisper model. It goes beyond simple transcription by providing AI-powered summarization, language detection, and a seamless editing experience.
 
-## Features
-- 🎙️ **Live Recording**: Record audio directly from your browser with real-time visualization.
-- 📁 **File Upload**: Support for MP3, WAV, M4A, and OGG files.
-- 📝 **AI Transcription**: Uses OpenAI's Whisper (local model) for robust speech recognition.
-- ✏️ **Editor**: View and edit your transcriptions.
-- 💾 **History**: All transcriptions are saved to MongoDB.
-- 📤 **Export**: Download results as TXT or PDF.
-- ✨ **AI Summarization**: Generate concise summaries of your transcriptions using **Llama 3.2** (via Ollama).
+## 🌟 Key Features
 
-## Tech Stack
-- **Frontend**: React (Vite), Tailwind CSS, Wavesurfer.js
-- **Backend**: Python Flask
-- **Database**: MongoDB
-- **AI**: OpenAI Whisper (Speech-to-Text), Llama 3.2 (Summarization)
+*   **🎙️ Live Recording**: Record audio directly from your browser with real-time visual feedback.
+*   **📁 File Upload**: Drag & drop support for MP3, WAV, M4A, and OGG files.
+*   **📝 High-Accuracy Transcription**: Powered by OpenAI's Whisper (running locally) for industry-leading speech recognition.
+*   **🤖 AI Summarization**: Instantly generate concise summaries of your transcripts using **Llama 3.2** (via Ollama).
+*   **🌍 Language Detection**: Automatically detects and displays the language of the spoken audio (e.g., [ENGLISH], [FRENCH]).
+*   **✏️ Smart Editor**: Review, edit, and save changes to your transcriptions. Updates are persisted instantly.
+*   **📊 History Dashboard**: Organize, search, and manage all your past transcriptions in one place.
+*   **🗑️ Management**: Delete unwanted transcriptions with ease.
+*   **📤 Export**: Download your work as formatted text (.txt) or PDF files.
 
-## Prerequisites
+## 🛠️ Tech Stack
 
-Before running the app, you need to have a few things installed on your computer.
+*   **Frontend**: React, Vite, Tailwind CSS, React Router, Lucide React, Wavesurfer.js
+*   **Backend**: Python Flask, PyMongo
+*   **AI/ML**: OpenAI Whisper (Speech-to-Text), Ollama + Llama 3.2 (Summarization)
+*   **Database**: MongoDB
 
-1.  **Node.js**: Download and install from [nodejs.org](https://nodejs.org/).
-2.  **Python**: Download and install Python (version 3.8 or higher) from [python.org](https://www.python.org/).
-3.  **MongoDB**: Download **MongoDB Community Server** from [mongodb.com](https://www.mongodb.com/try/download/community) and install it.
-    *   *Important*: During installation, keep "Install MongoDB as a Service" checked.
-4.  **Ollama**: Download from [ollama.com](https://ollama.com/) to enable AI summarization.
-    *   After installing, run `ollama pull llama3.2:3b` in your terminal.
-5.  **FFmpeg**: This is required for the AI to process audio. **See the step below.**
+## 📋 Prerequisites
 
-### 🖥️ FFmpeg Installation (Crucial Step)
-The application will **not work** without FFmpeg. We have included an automatic installer for you.
+Before running WhisperNote, ensure you have the following installed:
 
-**Option A: Automatic Installation (Easier)**
-1.  Open your project folder in File Explorer.
-2.  Right-click on the `install_ffmpeg.ps1` file (if you don't see it, it's in the root folder).
-3.  Select **"Run with PowerShell"**.
-4.  Wait for the script to finish downloading and installing.
-5.  **Restart your computer** or close and reopen all terminal windows to ensure it works.
+1.  **Node.js**: [Download](https://nodejs.org/)
+2.  **Python (3.8+)**: [Download](https://www.python.org/)
+3.  **MongoDB**: [Download Community Server](https://www.mongodb.com/try/download/community) (Ensure it's running as a service)
+4.  **Ollama**: [Download](https://ollama.com/) (Required for summarization)
+    *   Run: `ollama pull llama3.2:3b`
+5.  **FFmpeg**: Essential for audio processing.
 
-**Option B: Manual Installation (If Option A fails)**
-1.  **Download**: Go to [gyan.dev](https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z) and download the build.
-2.  **Extract**: 
-    *   Unzip the downloaded file. 
-    *   Rename the extracted folder (e.g., `ffmpeg-2025...`) to just `ffmpeg`.
-    *   Move this `ffmpeg` folder to your C drive: `C:\ffmpeg`.
-3.  **Add to PATH**:
-    *   Press the **Windows Key** on your keyboard and search for **"Edit the system environment variables"**. Click it.
-    *   Click the **"Environment Variables..."** button.
-    *   In the bottom section ("System variables"), find the variable named **Path** and select it. Click **Edit**.
-    *   Click **New** on the right side.
-    *   Type exactly: `C:\ffmpeg\bin`
-    *   Click **OK** on all three open windows to save.
-4.  **Verify**: Open a new terminal and type `ffmpeg -version`. If it prints details, you succeeded!
+### ⚡ Rapid FFmpeg Setup (Windows)
+We've included a script to automate this:
+1.  Right-click `install_ffmpeg.ps1` in the project folder.
+2.  Select **"Run with PowerShell"**.
+3.  **Restart your computer** after it finishes.
 
----
+## 🚀 How to Run
 
-## 🚀 How to Run the App
+You need to run the backend and frontend simultaneously in two separate terminals.
 
-You need to open **two** separate terminals (command prompts) to run the backend and frontend at the same time.
+### 1️⃣ Start the Backend
+```bash
+cd server
+pip install -r requirements.txt
+python app.py
+```
+*Wait until you see "Whisper model loaded".*
 
-### Step 1: Start the Backend (Server)
-1.  Open a terminal/command prompt.
-2.  Navigate to the project folder:
-    ```bash
-    cd path\to\Speech_to_Text\server
-    ```
-3.  Install the required Python tools (run this once):
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  Start the server:
-    ```bash
-    python app.py
-    ```
-    *You will see "Whisper model loaded" when it's ready.*
+### 2️⃣ Start the Frontend
+```bash
+cd client
+npm install
+npm run dev
+```
 
-### Step 2: Start the Frontend (User Interface)
-1.  Open a **new, second** terminal window.
-2.  Navigate to the client folder:
-    ```bash
-    cd path\to\Speech_to_Text\client
-    ```
-3.  Install the interface tools (run this once):
-    ```bash
-    npm install
-    ```
-4.  Start the interface:
-    ```bash
-    npm run dev
-    ```
-5.  Hold `Ctrl` and click the link shown (usually `http://localhost:5173`) to open the app in your browser.
+Open your browser and navigate to the link shown (e.g., `http://localhost:5173`).
 
-## Troubleshooting
-- **"ffmpeg is not recognized"**: If you see this error, run the `install_ffmpeg.ps1` script again and **restart your computer**.
-- **Upload fails**: Check the terminal running `python app.py` for error messages. Ensure MongoDB is running.
+## 🧩 Usage Guide
 
+1.  **Home**: Choose to "Upload Audio" or "Live Record".
+2.  **Recording/Upload**: Wait for the transcription to finish. You'll be redirected to the Editor.
+3.  **Editor**:
+    *   **Edit**: Fix any typos in the text area and click **Save**.
+    *   **Summarize**: Click the **✨ Summarize** button to get an AI summary.
+    *   **Export**: Use the PDF/TXT buttons to download.
+4.  **Dashboard**: access "Your Transcripts" from the top bar to view history or delete old files.
+
+## 🔧 Troubleshooting
+
+*   **"Transcription not found"**: Restart the Flask server (`python app.py`) if you recently updated the code.
+*   **Upload Fails**: Ensure FFmpeg is installed and added to your system PATH.
+*   **Summarization Error**: Ensure Ollama is running in the background (`ollama serve`).

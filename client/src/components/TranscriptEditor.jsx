@@ -1,36 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, FileText, Download, Check } from 'lucide-react';
+import { ArrowLeft, Save, Download, FileText, Check, X } from 'lucide-react';
+import jsPDF from 'jspdf';
 import axios from 'axios';
-import { jsPDF } from "jspdf";
+import { useParams, useNavigate } from 'react-router-dom';
 
-const TranscriptEditor = ({ transcription, onBack }) => {
-    const [text, setText] = useState(transcription?.text || '');
+const TranscriptEditor = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [transcription, setTranscription] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [text, setText] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState(null);
     const [summary, setSummary] = useState(null);
     const [isSummarizing, setIsSummarizing] = useState(false);
 
     useEffect(() => {
-        if (transcription) {
-            setText(transcription.text);
-            setSummary(null); // Reset summary on new transcription
+        const fetchTranscription = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/api/transcriptions/${id}`);
+                setTranscription(response.data);
+                setText(response.data.text);
+                setLoading(false);
+            } catch (error) {
+                console.error("Failed to load transcription", error);
+                alert("Transcription not found");
+                navigate('/transcripts');
+            }
+        };
+
+        if (id) {
+            fetchTranscription();
         }
-    }, [transcription]);
+    }, [id, navigate]);
 
     const handleSave = async () => {
         if (!transcription) return;
         setIsSaving(true);
-        // In a real app, we would have an update endpoint
-        // For now, we'll simulate a save or just implement the update in backend if planned
-        // Let's assume PUT /api/transcriptions/:id exists or we just store locally for demo
-
-        // Implementation of save logic:
-        // await axios.put(`http://localhost:5000/api/transcriptions/${transcription._id}`, { text });
-
-        setTimeout(() => {
-            setIsSaving(false);
+        try {
+            await axios.put(`http://localhost:5000/api/transcriptions/${id}`, { text });
             setLastSaved(new Date());
-        }, 800);
+        } catch (err) {
+            console.error("Failed to save", err);
+            alert("Failed to save changes");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleSummarize = async () => {
@@ -53,6 +68,7 @@ const TranscriptEditor = ({ transcription, onBack }) => {
         doc.text(transcription.filename || "Transcription", 10, 10);
         doc.setFontSize(12);
 
+        // Add text
         const splitText = doc.splitTextToSize(text, 180);
         doc.text(splitText, 10, 20);
 
@@ -84,17 +100,18 @@ const TranscriptEditor = ({ transcription, onBack }) => {
         document.body.removeChild(element);
     };
 
-    if (!transcription) return <div>No transcription selected</div>;
+    if (loading) return <div className="flex justify-center p-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>;
+    if (!transcription) return <div>No transcription found</div>;
 
     return (
-        <div className="max-w-4xl mx-auto h-full flex flex-col">
+        <div className="max-w-4xl mx-auto h-[calc(100vh-140px)] flex flex-col animate-in fade-in duration-500">
             <div className="flex items-center justify-between mb-6">
                 <button
-                    onClick={onBack}
+                    onClick={() => navigate('/transcripts')}
                     className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
                 >
                     <ArrowLeft className="mr-2" size={20} />
-                    Back to Dashboard
+                    Back to All Transcripts
                 </button>
 
                 <div className="flex gap-2">
@@ -140,7 +157,14 @@ const TranscriptEditor = ({ transcription, onBack }) => {
                 <div className={`flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 ${summary ? 'w-2/3' : 'w-full'}`}>
                     <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                         <div>
-                            <h3 className="font-semibold text-gray-800">{transcription.filename}</h3>
+                            <h3 className="font-semibold text-gray-800 flex items-center">
+                                {transcription.filename}
+                                {transcription.language && (
+                                    <span className="ml-3 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium uppercase border border-blue-200">
+                                        {new Intl.DisplayNames(['en'], { type: 'language' }).of(transcription.language) || transcription.language}
+                                    </span>
+                                )}
+                            </h3>
                             <p className="text-xs text-gray-500">
                                 {new Date(transcription.createdAt).toLocaleString()} • {transcription.duration ? `${transcription.duration}s` : 'Audio'}
                             </p>
@@ -158,9 +182,17 @@ const TranscriptEditor = ({ transcription, onBack }) => {
                 {/* Summary Sidebar */}
                 {summary && (
                     <div className="w-1/3 bg-purple-50 rounded-xl border border-purple-100 p-6 overflow-y-auto animate-in slide-in-from-right duration-300">
-                        <h3 className="text-purple-800 font-bold mb-4 flex items-center">
-                            ✨ AI Summary
-                        </h3>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-purple-800 font-bold flex items-center">
+                                ✨ AI Summary
+                            </h3>
+                            <button
+                                onClick={() => setSummary(null)}
+                                className="text-purple-400 hover:text-purple-700 transition-colors p-1 hover:bg-purple-100 rounded-full"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
                         <div className="prose prose-sm prose-purple text-gray-700 leading-relaxed whitespace-pre-wrap">
                             {summary}
                         </div>
@@ -170,5 +202,4 @@ const TranscriptEditor = ({ transcription, onBack }) => {
         </div>
     );
 };
-
 export default TranscriptEditor;
