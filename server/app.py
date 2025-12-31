@@ -79,6 +79,35 @@ def upload_file():
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
+@app.route('/api/generate-summary', methods=['POST'])
+def generate_summary():
+    data = request.json
+    if not data or 'text' not in data:
+        return jsonify({"error": "No text provided"}), 400
+    
+    transcription_text = data['text']
+    
+    # Payload for Ollama
+    ollama_payload = {
+        "model": "llama3.2:3b",
+        "prompt": f"Summarize the following text concisely:\n\n{transcription_text}",
+        "stream": False
+    }
+
+    try:
+        # Call local Ollama instance
+        import requests
+        response = requests.post('http://localhost:11434/api/generate', json=ollama_payload)
+        
+        if response.status_code == 200:
+            summary = response.json().get('response', '')
+            return jsonify({"summary": summary}), 200
+        else:
+            return jsonify({"error": f"Ollama Error: {response.text}"}), 500
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     # usage_reloader=False prevents WinError 10038 on Windows
     app.run(debug=True, port=5000, use_reloader=False)

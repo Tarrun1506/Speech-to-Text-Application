@@ -16,7 +16,6 @@ uploads/
 *.wav
 *.mp3
 *.pdf
-*.txt
 ffmpeg/
 
 # IDEs

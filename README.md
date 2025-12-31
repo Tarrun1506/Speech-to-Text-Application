@@ -9,12 +9,13 @@ A full-stack application that provides highly accurate speech transcription usin
 - ✏️ **Editor**: View and edit your transcriptions.
 - 💾 **History**: All transcriptions are saved to MongoDB.
 - 📤 **Export**: Download results as TXT or PDF.
+- ✨ **AI Summarization**: Generate concise summaries of your transcriptions using **Llama 3.2** (via Ollama).
 
 ## Tech Stack
 - **Frontend**: React (Vite), Tailwind CSS, Wavesurfer.js
 - **Backend**: Python Flask
 - **Database**: MongoDB
-- **AI**: OpenAI Whisper (running locally)
+- **AI**: OpenAI Whisper (Speech-to-Text), Llama 3.2 (Summarization)
 
 ## Prerequisites
 
@@ -24,7 +25,9 @@ Before running the app, you need to have a few things installed on your computer
 2.  **Python**: Download and install Python (version 3.8 or higher) from [python.org](https://www.python.org/).
 3.  **MongoDB**: Download **MongoDB Community Server** from [mongodb.com](https://www.mongodb.com/try/download/community) and install it.
     *   *Important*: During installation, keep "Install MongoDB as a Service" checked.
-4.  **FFmpeg**: This is required for the AI to process audio. **See the step below.**
+4.  **Ollama**: Download from [ollama.com](https://ollama.com/) to enable AI summarization.
+    *   After installing, run `ollama pull llama3.2:3b` in your terminal.
+5.  **FFmpeg**: This is required for the AI to process audio. **See the step below.**
 
 ### 🖥️ FFmpeg Installation (Crucial Step)
 The application will **not work** without FFmpeg. We have included an automatic installer for you.
