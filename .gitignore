@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+.env
+
+# Build outputs
+dist/
+build/
+
+# Application Data
+uploads/
+*.wav
+*.mp3
+*.pdf
+*.txt
+ffmpeg/
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
