@@ -71,7 +71,7 @@ function HomeView() {
         <h1 className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-4">
           WhisperNote
         </h1>
-        <p className="text-xl text-gray-500">AI-Powered Speech Transcription & Summarization</p>
+        <p className="text-xl text-gray-500">AI-Powered Speech Transcription</p>
       </div>
 
       <div className="flex gap-8 w-full max-w-4xl justify-center">
